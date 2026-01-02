@@ -5,6 +5,7 @@ import IMS.data.repository.ProductRepo;
 import IMS.data.repository.StoreRepo;
 import IMS.dtos.request.AddProductRequest;
 import IMS.dtos.request.CreateStoreRequest;
+import IMS.dtos.request.UpdateProductRequest;
 import IMS.dtos.response.AddProductResponse;
 import IMS.exception.ValidateStoreException;
 import IMS.exception.validateProductNameException;
@@ -24,6 +25,7 @@ import static org.springframework.test.util.AssertionErrors.assertNotNull;
 class StoreServiceImplementationTest {
     AddProductRequest addProductRequest;
     CreateStoreRequest createStoreRequest;
+    UpdateProductRequest updateProductRequest;
     @Autowired
     StoreService storeService;
     @Autowired
@@ -43,6 +45,10 @@ class StoreServiceImplementationTest {
      addProductRequest.setQuantity(10);
      createStoreRequest = new CreateStoreRequest();
      createStoreRequest.setStoreName("notdotun");
+     updateProductRequest = new UpdateProductRequest();
+     updateProductRequest.setField("productDescription");
+     updateProductRequest.setValue("alcoholic");
+     updateProductRequest.setProductName("MILO");
  }
 
 
@@ -58,7 +64,6 @@ class StoreServiceImplementationTest {
 
     @Test
     public void StoreCanNotAddProductIFNotCreatedOrNamed(){
-
         assertThrows(ValidateStoreException.class,()->storeService.AddProduct(addProductRequest));
     }
 
@@ -106,10 +111,13 @@ class StoreServiceImplementationTest {
         assertEquals("okay","PRODUCT ENTERED SUCCESSFULLY",addProductResponse.getMessage());
         assertEquals("productCount",1,storeRepo.findFirstBy().getProducts().size());
         addProductResponse =storeService.AddProduct(addProductRequest);
-
-
-
+        assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
+        assertEquals("okay","UPDATED SUCCESSFULLY",storeService.updateProduct(updateProductRequest).getMessage());
     }
+
+
+
+
 
 
 }
