@@ -9,5 +9,5 @@ public class AddProductRequest {
     private String description;
     private BigDecimal price;
     private int Quantity;
-    private String StoreName;
+
 }

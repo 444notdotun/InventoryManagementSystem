@@ -3,13 +3,15 @@ package IMS.services;
 
 import IMS.data.repository.ProductRepo;
 import IMS.data.repository.StoreRepo;
-import IMS.dtos.request.AddProductRequest;
-import IMS.dtos.request.CreateStoreRequest;
-import IMS.dtos.request.UpdateProductRequest;
+import IMS.dtos.request.*;
 import IMS.dtos.response.AddProductResponse;
+import IMS.dtos.response.DeleteResponse;
+import IMS.dtos.response.UpdateProductResponse;
+import IMS.dtos.response.ViewByIdResponse;
 import IMS.exception.ValidateStoreException;
 import IMS.exception.validateProductNameException;
 import IMS.exception.validatepriceException;
+import com.mongodb.internal.bulk.DeleteRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ class StoreServiceImplementationTest {
     AddProductRequest addProductRequest;
     CreateStoreRequest createStoreRequest;
     UpdateProductRequest updateProductRequest;
+    ViewByIdRequest viewByIdRequest;
+    DeleteByNameRequest deleteByNameRequest;
     @Autowired
     StoreService storeService;
     @Autowired
@@ -49,6 +53,9 @@ class StoreServiceImplementationTest {
      updateProductRequest.setField("productDescription");
      updateProductRequest.setValue("alcoholic");
      updateProductRequest.setProductName("MILO");
+     viewByIdRequest = new ViewByIdRequest();
+     deleteByNameRequest = new DeleteByNameRequest();
+     deleteByNameRequest.setName(addProductRequest.getProductName());
  }
 
 
@@ -113,6 +120,58 @@ class StoreServiceImplementationTest {
         addProductResponse =storeService.AddProduct(addProductRequest);
         assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
         assertEquals("okay","UPDATED SUCCESSFULLY",storeService.updateProduct(updateProductRequest).getMessage());
+    }
+
+    @Test
+    public void ExistingProductCanBeUpdatedAndViewed(){
+        userService.createStore(createStoreRequest);
+        storeRepo.findFirstBy().getProducts().clear();
+        assertNotNull("notnull",addProductRequest);
+        AddProductResponse addProductResponse =storeService.AddProduct(addProductRequest);
+        assertEquals("okay","PRODUCT ENTERED SUCCESSFULLY",addProductResponse.getMessage());
+        assertEquals("productCount",1,storeRepo.findFirstBy().getProducts().size());
+        addProductResponse =storeService.AddProduct(addProductRequest);
+        assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
+        assertEquals("okay","UPDATED SUCCESSFULLY",storeService.updateProduct(updateProductRequest).getMessage());
+        assertEquals("viewproduct","Product(productName=MILO, productQuantity=10, productPrice=2000, productDescription=alcoholic)\n",storeService.viewAllProducts().getProducts());
+    }
+
+    @Test
+    public void ExistingProductCanBeViewedWithId(){
+        userService.createStore(createStoreRequest);
+        storeRepo.findFirstBy().getProducts().clear();
+        assertNotNull("notnull",addProductRequest);
+        AddProductResponse addProductResponse =storeService.AddProduct(addProductRequest);
+        assertEquals("okay","PRODUCT ENTERED SUCCESSFULLY",addProductResponse.getMessage());
+        assertEquals("productCount",1,storeRepo.findFirstBy().getProducts().size());
+        addProductResponse =storeService.AddProduct(addProductRequest);
+        assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
+        UpdateProductResponse updateProductResponse = storeService.updateProduct(updateProductRequest);
+        assertEquals("okay","UPDATED SUCCESSFULLY",updateProductResponse.getMessage());
+        viewByIdRequest.setProductId(addProductResponse.getProductId());
+        ViewByIdResponse viewByIdResponse = storeService.viewById(viewByIdRequest);
+        assertEquals("viewbyid",updateProductRequest.getValue(),viewByIdResponse.getProduct().getProductDescription());
+    }
+
+    @Test
+    public void ExistingProductCanBedeleted(){
+        userService.createStore(createStoreRequest);
+        storeRepo.findFirstBy().getProducts().clear();
+        assertNotNull("notnull",addProductRequest);
+        AddProductResponse addProductResponse =storeService.AddProduct(addProductRequest);
+        assertEquals("okay","PRODUCT ENTERED SUCCESSFULLY",addProductResponse.getMessage());
+        assertEquals("productCount",1,storeRepo.findFirstBy().getProducts().size());
+        addProductResponse =storeService.AddProduct(addProductRequest);
+        assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
+        UpdateProductResponse updateProductResponse = storeService.updateProduct(updateProductRequest);
+        assertEquals("okay","UPDATED SUCCESSFULLY",updateProductResponse.getMessage());
+        viewByIdRequest.setProductId(addProductResponse.getProductId());
+        ViewByIdResponse viewByIdResponse = storeService.viewById(viewByIdRequest);
+        assertEquals("viewbyid",updateProductRequest.getValue(),viewByIdResponse.getProduct().getProductDescription());
+        DeleteResponse deleteResponse = storeService.deleteProduct(deleteByNameRequest);
+        assertEquals("productCountAfterDeleting",0,storeRepo.findFirstBy().getProducts().size());
+        assertEquals("productCountAfterDeleting",0,productRepo.count());
+
     }
 
 

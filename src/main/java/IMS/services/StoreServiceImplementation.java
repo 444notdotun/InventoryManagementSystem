@@ -5,10 +5,10 @@ import IMS.data.models.Store;
 import IMS.data.repository.ProductRepo;
 import IMS.data.repository.StoreRepo;
 import IMS.dtos.request.AddProductRequest;
+import IMS.dtos.request.DeleteByNameRequest;
 import IMS.dtos.request.UpdateProductRequest;
-import IMS.dtos.response.AddProductResponse;
-import IMS.dtos.response.UpdateProductResponse;
-import IMS.dtos.response.ViewProductResponse;
+import IMS.dtos.request.ViewByIdRequest;
+import IMS.dtos.response.*;
 import IMS.exception.ValidateStoreException;
 import IMS.exception.validateProductNameException;
 import IMS.exception.validatepriceException;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class StoreServiceImplementation  implements StoreService{
@@ -73,11 +74,42 @@ public class StoreServiceImplementation  implements StoreService{
         StringBuilder products = new StringBuilder();
         for(Product product:storeRepo.findFirstBy().getProducts().values()) {
             products.append(product.toString());
+            products.append("\n");
         }
         ViewProductResponse viewProductResponse = new ViewProductResponse();
         viewProductResponse.setProducts(products.toString());
         viewProductResponse.setMessage("ALL PRODUCTS IN STORE!");
         return viewProductResponse;
+    }
+
+    @Override
+    public ViewByIdResponse viewById(ViewByIdRequest viewByIdRequest) {
+        ViewByIdResponse viewByIdResponse = new ViewByIdResponse();
+        viewByIdResponse.setProduct(productRepo.findByProductId(viewByIdRequest.getProductId()));
+        viewByIdResponse.setMessage("product returned successfully");
+        return viewByIdResponse;
+        
+    }
+
+    @Override
+    public DeleteResponse deleteProduct(DeleteByNameRequest deleteRequest) {
+        Store store =storeRepo.findFirstBy();
+        Product product = productRepo.findByProductName(deleteRequest.getName());
+        validateProduct(product);
+        productRepo.deleteById(product.getProductId());
+        store.getProducts().remove(product.getProductName());
+
+        storeRepo.save(store);
+
+        DeleteResponse deleteResponse = new DeleteResponse();
+        deleteResponse.setMessage("deleted!");
+        return deleteResponse;
+    }
+
+    private void validateProduct(Product product){
+        if(product == null){
+            throw  new validatepriceException("PRODUCT IS NULL");
+        }
     }
 
     private Product determineFields(UpdateProductRequest updateProductRequest) {
