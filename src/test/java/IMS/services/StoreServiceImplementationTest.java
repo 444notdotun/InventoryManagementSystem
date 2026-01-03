@@ -28,8 +28,8 @@ class StoreServiceImplementationTest {
     AddProductRequest addProductRequest;
     CreateStoreRequest createStoreRequest;
     UpdateProductRequest updateProductRequest;
-    ViewByIdRequest viewByIdRequest;
-    DeleteByNameRequest deleteByNameRequest;
+    String viewByIdRequest;
+    String deleteByNameRequest;
     @Autowired
     StoreService storeService;
     @Autowired
@@ -46,16 +46,15 @@ class StoreServiceImplementationTest {
      addProductRequest.setProductName("MILO");
      addProductRequest.setDescription("beverages");
      addProductRequest.setPrice(BigDecimal.valueOf(2000));
-     addProductRequest.setQuantity(10);
+     addProductRequest.setQuantity(0);
      createStoreRequest = new CreateStoreRequest();
      createStoreRequest.setStoreName("notdotun");
      updateProductRequest = new UpdateProductRequest();
      updateProductRequest.setField("productDescription");
      updateProductRequest.setValue("alcoholic");
      updateProductRequest.setProductName("MILO");
-     viewByIdRequest = new ViewByIdRequest();
-     deleteByNameRequest = new DeleteByNameRequest();
-     deleteByNameRequest.setName(addProductRequest.getProductName());
+
+     deleteByNameRequest=addProductRequest.getProductName();
  }
 
 
@@ -133,7 +132,7 @@ class StoreServiceImplementationTest {
         addProductResponse =storeService.AddProduct(addProductRequest);
         assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
         assertEquals("okay","UPDATED SUCCESSFULLY",storeService.updateProduct(updateProductRequest).getMessage());
-        assertEquals("viewproduct","Product(productName=MILO, productQuantity=10, productPrice=2000, productDescription=alcoholic)\n",storeService.viewAllProducts().getProducts());
+        assertEquals("viewproduct","Product(productName=MILO, productQuantity=0, productPrice=2000, productDescription=alcoholic)\n",storeService.viewAllProducts().getProducts());
     }
 
     @Test
@@ -148,7 +147,7 @@ class StoreServiceImplementationTest {
         assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
         UpdateProductResponse updateProductResponse = storeService.updateProduct(updateProductRequest);
         assertEquals("okay","UPDATED SUCCESSFULLY",updateProductResponse.getMessage());
-        viewByIdRequest.setProductId(addProductResponse.getProductId());
+        viewByIdRequest=addProductResponse.getProductId();
         ViewByIdResponse viewByIdResponse = storeService.viewById(viewByIdRequest);
         assertEquals("viewbyid",updateProductRequest.getValue(),viewByIdResponse.getProduct().getProductDescription());
     }
@@ -165,12 +164,12 @@ class StoreServiceImplementationTest {
         assertEquals("notOkay","PRODUCT ENTERED ALREADY EXISTS",addProductResponse.getMessage());
         UpdateProductResponse updateProductResponse = storeService.updateProduct(updateProductRequest);
         assertEquals("okay","UPDATED SUCCESSFULLY",updateProductResponse.getMessage());
-        viewByIdRequest.setProductId(addProductResponse.getProductId());
+        viewByIdRequest=addProductResponse.getProductId();
         ViewByIdResponse viewByIdResponse = storeService.viewById(viewByIdRequest);
         assertEquals("viewbyid",updateProductRequest.getValue(),viewByIdResponse.getProduct().getProductDescription());
         DeleteResponse deleteResponse = storeService.deleteProduct(deleteByNameRequest);
         assertEquals("productCountAfterDeleting",0,storeRepo.findFirstBy().getProducts().size());
-        assertEquals("productCountAfterDeleting",0,productRepo.count());
+        assertEquals("productCountAfterDeleting",0L,productRepo.count());
 
     }
 

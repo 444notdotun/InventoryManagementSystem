@@ -11,16 +11,15 @@ import java.time.LocalDateTime;
 @Document
 public class Product {
 @ToString.Exclude
+    @Id
     private String productId;
     private String productName;
     private int productQuantity;
     private BigDecimal productPrice;
     private String productDescription;
 
-    @ToString.Exclude
-    @Id
-    private String Id;
-    @ToString.Exclude
+
+   @ToString.Exclude
     private LocalDateTime createdTime;
 
     public Product( String productName, int productQuantity, BigDecimal productPrice, String productDescription) {

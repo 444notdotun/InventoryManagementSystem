@@ -12,6 +12,6 @@ public interface UserService {
     AddProductResponse AddProduct(AddProductRequest addProductRequest);
     UpdateProductResponse updateProduct(UpdateProductRequest updateProductRequest);
     ViewProductResponse viewAllProducts();
-    ViewByIdResponse viewById(ViewByIdRequest viewByIdRequest);
-    DeleteResponse deleteProduct(DeleteByNameRequest deleteRequest);
+    ViewByIdResponse viewById(String viewByIdRequest);
+    DeleteResponse deleteProduct(String deleteRequest);
 }

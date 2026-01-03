@@ -41,12 +41,12 @@ StoreService storeService;
     }
 
     @Override
-    public ViewByIdResponse viewById(ViewByIdRequest viewByIdRequest) {
+    public ViewByIdResponse viewById(String viewByIdRequest) {
         return storeService.viewById(viewByIdRequest);
     }
 
     @Override
-    public DeleteResponse deleteProduct(DeleteByNameRequest deleteRequest) {
+    public DeleteResponse deleteProduct(String deleteRequest) {
         return storeService.deleteProduct(deleteRequest);
     }
 

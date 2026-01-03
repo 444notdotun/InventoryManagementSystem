@@ -5,9 +5,7 @@ import IMS.data.models.Store;
 import IMS.data.repository.ProductRepo;
 import IMS.data.repository.StoreRepo;
 import IMS.dtos.request.AddProductRequest;
-import IMS.dtos.request.DeleteByNameRequest;
 import IMS.dtos.request.UpdateProductRequest;
-import IMS.dtos.request.ViewByIdRequest;
 import IMS.dtos.response.*;
 import IMS.exception.ValidateStoreException;
 import IMS.exception.validateProductNameException;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class StoreServiceImplementation  implements StoreService{
@@ -83,27 +80,32 @@ public class StoreServiceImplementation  implements StoreService{
     }
 
     @Override
-    public ViewByIdResponse viewById(ViewByIdRequest viewByIdRequest) {
+    public ViewByIdResponse viewById(String viewByIdRequest) {
         ViewByIdResponse viewByIdResponse = new ViewByIdResponse();
-        viewByIdResponse.setProduct(productRepo.findByProductId(viewByIdRequest.getProductId()));
+        viewByIdResponse.setProduct(productRepo.findByProductId(viewByIdRequest));
         viewByIdResponse.setMessage("product returned successfully");
         return viewByIdResponse;
         
     }
 
     @Override
-    public DeleteResponse deleteProduct(DeleteByNameRequest deleteRequest) {
+    public DeleteResponse deleteProduct(String deleteRequest) {
         Store store =storeRepo.findFirstBy();
-        Product product = productRepo.findByProductName(deleteRequest.getName());
+        Product product = productRepo.findByProductName(deleteRequest);
         validateProduct(product);
-        productRepo.deleteById(product.getProductId());
+        validateDeletion(product);
+        productRepo.delete(product);
         store.getProducts().remove(product.getProductName());
-
         storeRepo.save(store);
-
         DeleteResponse deleteResponse = new DeleteResponse();
         deleteResponse.setMessage("deleted!");
         return deleteResponse;
+    }
+
+    private void validateDeletion(Product product){
+        if(product.getProductQuantity()>0){
+            throw new ValidateStoreException("YOU CAN NOT DELETE");
+        }
     }
 
     private void validateProduct(Product product){
