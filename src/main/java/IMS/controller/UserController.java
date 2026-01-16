@@ -1,4 +1,4 @@
-package IMS.data.controller;
+package IMS.controller;
 
 import IMS.dtos.request.AddProductRequest;
 import IMS.dtos.request.CreateStoreRequest;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("user")
-public class UserContoller {
+public class UserController {
     @Autowired
     private UserService userService;
     @PostMapping("/createStore")
